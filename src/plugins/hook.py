@@ -16,7 +16,7 @@
 import os
 import logging
 import subprocess
-from plugin import Plugin
+from .plugin import Plugin
 
 class Hook(Plugin):
     '''A hook is a plugin that executes an external command'''
@@ -68,10 +68,10 @@ class Hook(Plugin):
         cmd = [self._script] + self.disper.argv
         self.log.info('Executing hook: '+' '.join(cmd))
         try: subprocess.Popen(cmd, env=self._env).wait()
-        except OSError, e: self.log.warning('Could not execute hook '+self._script+': '+ e.strerror)
+        except OSError as e: self.log.warning('Could not execute hook '+self._script+': '+ e.strerror)
 
     def _translate_displays(self, displays):
         '''replace invalid variable name characters for displays'''
-        return map(lambda d: d.replace('-','_'), displays)
+        return [d.replace('-','_') for d in displays]
 
 # vim:ts=4:sw=4:expandtab:

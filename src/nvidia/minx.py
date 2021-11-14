@@ -20,7 +20,7 @@
 import struct
 import socket
 from platform import architecture
-import xnet
+from . import xnet
 
 
 __XFORMATBYTES = { 'CARD8':1,'CARD16':2,'INT8':1,'INT16':2,
@@ -205,7 +205,7 @@ class XConnectRefusedReply:
         XData('CARD16',1,'sz_additional'),
         XData('STRING8','sz_reason','reason') )
         
-        for n, v in xreply.iteritems():
+        for n, v in xreply.items():
             setattr( self, n, v )
 
 class XConnectAcceptedReply:
@@ -237,7 +237,7 @@ class XConnectAcceptedReply:
         XData('PAD',4,'unused_2'),
         XData('STRING8','sz_vendor','vendor') )
 
-        for n, v in xreply.iteritems():
+        for n, v in xreply.items():
             setattr( self, n, v )
     
         self.pixmap_formats = []
@@ -304,7 +304,7 @@ class XConnectAuthenticateReply:
         XData('PAD',5,'unused'),
         XData('CARD16',1,'sz_additional') )
 
-        for n, v in xreply.iteritems():
+        for n, v in xreply.items():
             setattr( self, n, v )
         
         rs, ad = decode( ad,
@@ -344,7 +344,7 @@ class XQueryExtensionReply:
         XData('CARD8',1,'first_error'),
         XData('PAD',20,'unused_2') )
 
-        for n, v in xreply.iteritems():
+        for n, v in xreply.items():
             setattr( self, n, v )
 
 
@@ -372,7 +372,7 @@ class XListExtensionsReply:
         XData('CARD32',1,'reply_length'),
         XData('PAD',24,'unused') )
 
-        for n, v in xreply.iteritems():
+        for n, v in xreply.items():
             setattr( self, n, v )
 
         self.names = []
@@ -392,7 +392,7 @@ def Xchange( xsock, rq) :
         xsock.send( rq.encoding )
         xreply = xsock.recv(65535) # TODO make sure it fits
 
-    except socket.error, err:
+    except socket.error as err:
         raise xnet.XConnectionError( 'Network error: %s' % err[1] )
 
     return xreply

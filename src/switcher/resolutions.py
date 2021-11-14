@@ -48,9 +48,9 @@ class Resolution:
             pass
         elif type(val) == str:
             parts = val.split('@')
-            self.physical = map(int, parts[0].split('x',1))
+            self.physical = list(map(int, parts[0].split('x',1)))
             if len(parts)>1:
-                self.virtual = map(int, parts[1].split('x',1))
+                self.virtual = list(map(int, parts[1].split('x',1)))
             elif len(parts)>2:
                 raise TypeError('need zero or one virtual resolutions (@): '+val)
         elif type(val) in [list,tuple]:
@@ -173,7 +173,7 @@ class ResolutionSelection(dict):
 
     def __str__(self):
         s = []
-        for disp,r in self.iteritems():
+        for disp,r in self.items():
             s.append('%s: %s'%(disp, r))
         return ', '.join(s)
 
@@ -183,7 +183,7 @@ class ResolutionCollection(dict):
 
     def __str__(self):
         s = []
-        for disp,rl in self.iteritems():
+        for disp,rl in self.items():
             s.append('%s: %s'%(disp, rl))
         return '\n'.join(s)
 
@@ -192,7 +192,7 @@ class ResolutionCollection(dict):
         The weight of each resolution is the sum of that of each display.'''
         if len(self) == 0: return ResolutionList()
         common = None
-        for disp,rl in self.iteritems():
+        for disp,rl in self.items():
             rl = ResolutionList(rl)
             if not common:
                 common = rl
@@ -208,12 +208,12 @@ class ResolutionCollection(dict):
 
     def sort(self):
         '''sort all contained resolution lists'''
-        for disp,rl in self.iteritems():
+        for disp,rl in self.items():
             rl.sort()
 
     def reverse(self):
         '''reverse all contained resolution lists'''
-        for disp,rl in self.iteritems():
+        for disp,rl in self.items():
             rl.reverse()
 
     def select(self, choose=lambda disp,rl: sorted(rl)[-1]):
@@ -222,7 +222,7 @@ class ResolutionCollection(dict):
         sorted each contained ResolutionList with the best resolution at the
         end. Or if another selection criterion is wanted, it can be specified.'''
         r = ResolutionSelection()
-        for disp,rl in self.iteritems():
+        for disp,rl in self.items():
             r[disp] = choose(disp, rl)
         return r
 
@@ -231,34 +231,34 @@ class ResolutionCollection(dict):
 if __name__ == '__main__':
     r = Resolution('800x600')
     if r != Resolution('800x600'):
-        print 'ERROR: resolution string init, resolution compare: %s'%r
+        print('ERROR: resolution string init, resolution compare: %s'%r)
     if r != [800, 600]:
-        print 'ERROR: resolution string init, list compare: %s'%r
+        print('ERROR: resolution string init, list compare: %s'%r)
     if r != '   800    x 600  ':
-        print 'ERROR: resolution string init, string compare: %s'%r
+        print('ERROR: resolution string init, string compare: %s'%r)
 
     if not Resolution([1024, 768]) > r:
-        print 'ERROR: resolution compare'
+        print('ERROR: resolution compare')
     if Resolution([640,480], 1) <= r:
-        print 'ERROR: sort order 1 vs 0'
+        print('ERROR: sort order 1 vs 0')
     if Resolution([640,480], -5) >= r:
-        print 'ERROR: sort order -5 vs 0'
+        print('ERROR: sort order -5 vs 0')
 
     rl = ResolutionList(' 640x480,    1024   x   768 , 800x600, 200x300  ')
     rl2 = ResolutionList(['640x480', '1024x768', '800x600', '200x300'])
     rl3 = ResolutionList([[640,480], [1024,768], [800,600], [200,300]])
     if rl != rl2:
-        print 'ERROR: resolutionlist string vs. list of strings'
+        print('ERROR: resolutionlist string vs. list of strings')
     if rl != rl3:
-        print 'ERROR: resolutionlist string vs. list of lists'
+        print('ERROR: resolutionlist string vs. list of lists')
     if '800x600' not in rl:
-        print 'ERROR: cannot find string resolution in list'
+        print('ERROR: cannot find string resolution in list')
     if [800,600] not in rl:
-        print 'ERROR: cannot find list resolution in list'
+        print('ERROR: cannot find list resolution in list')
 
     rl.sort()
     if rl != '200x300, 640x480, 800x600, 1024x768':
-        print 'ERROR: resolution list sort: %s'%rl
+        print('ERROR: resolution list sort: %s'%rl)
 
     rc = ResolutionCollection()
     rl1 = ResolutionList('640x480, 200x300, 600x800, 1024x800, 400x800, 400x300')
@@ -267,19 +267,19 @@ if __name__ == '__main__':
     rc['display2'] = rl2
 
     if rc.common() != '200x300, 400x300':
-        print 'ERROR: resolution collection common'
+        print('ERROR: resolution collection common')
     if rc.select() != {'display1': Resolution('1024x800'), 'display2': Resolution('1000x800')}:
-        print 'ERROR: resolution collection select'
+        print('ERROR: resolution collection select')
 
     rcsorted = ResolutionCollection()
     rcsorted['display1'] = sorted(rl1)
     rcsorted['display2'] = sorted(rl2)
     if rc == rcsorted:
-        print 'ERROR: resolution collections should not be equal before sorting'
+        print('ERROR: resolution collections should not be equal before sorting')
     rc.sort()
     if rc != rcsorted:
-        print 'ERROR: inplace sorting failed'
+        print('ERROR: inplace sorting failed')
 
-    print 'all tests done.'
+    print('all tests done.')
 
 # vim:ts=4:sw=4:expandtab:

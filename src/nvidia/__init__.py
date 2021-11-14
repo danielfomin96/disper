@@ -13,7 +13,7 @@
 # By using, editing and/or distributing this software you agree to
 # the terms and conditions of this license.
 
-from nvcmd import *
-from nvsettings import *
+from .nvcmd import *
+from .nvsettings import *
 
 # vim:ts=4:sw=4:expandtab:

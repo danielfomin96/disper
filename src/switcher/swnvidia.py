@@ -19,7 +19,7 @@ import logging
 
 import nvidia
 
-from resolutions import *
+from .resolutions import *
 
 class NVidiaSwitcher:
 
@@ -140,17 +140,17 @@ class NVidiaSwitcher:
         '''restore a display configuration as exported by export_config()'''
         backend = displays = mmline = scaling = xio = None
         for l in cfg.splitlines():
-            key, sep, value = map(lambda s: s.strip(), l.partition(':'))
+            key, sep, value = [s.strip() for s in l.partition(':')]
             if key == 'backend':
                 backend = value
             elif key == 'associated displays':
-                displays = map(lambda s: s.strip(), value.split(','))
+                displays = [s.strip() for s in value.split(',')]
             elif key == 'metamode':
                 mmline = value.strip()
             elif key == 'scaling':
-                scaling = map(lambda s: s.strip(), value.split(','))
+                scaling = [s.strip() for s in value.split(',')]
             elif key == 'xinerama info order':
-                xio = map(lambda s: s.strip(), value.split(','))
+                xio = [s.strip() for s in value.split(',')]
 
         if not backend:
             self.log.warning('no backend specified, assuming nvidia')
@@ -186,9 +186,7 @@ class NVidiaSwitcher:
         scalings = self.get_scaling(assocdisplays)
         cfg.append('scaling: ' + ', '.join(scalings))
         # Xinerama info order
-        xio = filter(lambda x: x in assocdisplays, 
-            map(lambda s: s.strip(), 
-            self.nv.get_xinerama_info_order(self.screen).split(',')))
+        xio = [x for x in [s.strip() for s in self.nv.get_xinerama_info_order(self.screen).split(',')] if x in assocdisplays]
         cfg.append('xinerama info order: ' + ", ".join(xio))
         return '\n'.join(cfg)
 
@@ -234,7 +232,7 @@ class NVidiaSwitcher:
         '''
 
         # make sure requested displays are connected (or metamode can't be created)
-        unconndisplays = filter(lambda x: x not in self.get_displays(), displays)
+        unconndisplays = [x for x in displays if x not in self.get_displays()]
         if len(unconndisplays) > 0:
             raise Exception('unconnected displays referenced, please connect: ' + \
                 ', '.join(unconndisplays))

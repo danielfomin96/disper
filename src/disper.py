@@ -165,11 +165,11 @@ class Disper:
         if self.options.plugins == None: self.options.plugins = "user"
         if self.options.reverse_cycles == None: self.options.reverse_cycles = False
         self.log.setLevel(self.options.debug)
-        self.options.plugins = map(lambda x: x.strip(), self.options.plugins.split(','))
+        self.options.plugins = [x.strip() for x in self.options.plugins.split(',')]
         if self.options.displays != 'auto':
-            self.options.displays = map(lambda x: x.strip(), self.options.displays.split(','))
+            self.options.displays = [x.strip() for x in self.options.displays.split(',')]
         if self.options.resolution not in ['auto', 'max', 'off']:
-            self.options.resolution = map(lambda x: x.strip(), self.options.resolution.split(','))
+            self.options.resolution = [x.strip() for x in self.options.resolution.split(',')]
         self.plugins.set_enabled(self.options.plugins)
 
     def config_read_default(self):
@@ -179,7 +179,7 @@ class Disper:
         xdg_config_dirs = [os.path.join(home, '.disper')] + \
                           [os.environ.get('XDG_CONFIG_HOME', os.path.join(home, '.config', 'disper'))] + \
                           os.environ.get('XDG_CONFIG_DIRS', '/etc/xdg/disper').split(':')
-        xdg_config_dirs = filter(lambda x: x and os.path.exists(x), xdg_config_dirs)
+        xdg_config_dirs = [x for x in xdg_config_dirs if x and os.path.exists(x)]
         # since later configuration files override previous ones, reverse order of reading
         # TODO allow override of action, since multiple actions would now conflict
         xdg_config_dirs = reversed(xdg_config_dirs)
@@ -212,7 +212,7 @@ class Disper:
         elif 'extend' in self.options.actions:
             self.switch_extend()
         elif 'export' in self.options.actions:
-            print self.export_config()
+            print((self.export_config()))
         elif 'import' in self.options.actions:
             self.import_config('\n'.join(sys.stdin))
         elif 'cycle' in self.options.actions:
@@ -225,8 +225,8 @@ class Disper:
             for disp in displays:
                 res = self.switcher().get_resolutions_display(disp)
                 res.sort()
-                print 'display %s: %s'%(disp, self.switcher().get_display_name(disp))
-                print ' resolutions: '+str(res)
+                print(('display %s: %s'%(disp, self.switcher().get_display_name(disp))))
+                print((' resolutions: '+str(res)))
         else:
             self.log.critical('program error, unrecognised action: '+', '.join(self.options.actions))
             raise SystemExit(2)
@@ -321,7 +321,7 @@ class Disper:
         if ress == 'max':     # max resolution for each
             # override auto-detection weights and get highest resolution
             ress = self.switcher().get_resolutions(displays)
-            for rl in ress.values():
+            for rl in list(ress.values()):
                 for r in rl: r.weight = 0
             ress = ress.select()
             self.log.info('maximum resolutions for displays: '+str(ress))
@@ -375,7 +375,7 @@ class Disper:
         else:
             stage += 1
             if stage >= len(stages): stage = 0
-        self.argv = filter(lambda x: x!='-C' and x!='--cycle', self.argv)
+        self.argv = [x for x in self.argv if x!='-C' and x!='--cycle']
         self.options_parse(shlex.split(stages[stage]))
         try:
             self.switch()

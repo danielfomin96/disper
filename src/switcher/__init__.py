@@ -15,8 +15,8 @@
 
 import logging
 
-from edid import Edid
-from resolutions import *
+from .edid import Edid
+from .resolutions import *
 
 class Switcher:
 
@@ -35,14 +35,14 @@ class Switcher:
         try:
             # nVidia must be probed before XRandR because it uses XRandR in a
             # non-standard way
-            from swnvidia import NVidiaSwitcher
+            from .swnvidia import NVidiaSwitcher
             self.backend = NVidiaSwitcher()
             self.log.info('backend: nVidia')
             return
         except SyntaxError: raise
         except: pass
         try:
-            from swxrandr import XRandrSwitcher
+            from .swxrandr import XRandrSwitcher
             self.backend = XRandrSwitcher()
             self.log.info('backend: XRandR')
             return
@@ -78,7 +78,7 @@ class Switcher:
         # always put primary display in front
         if self.get_primary_display() in self._displays:
             self._displays = [self.get_primary_display()] + \
-                filter(lambda x: x!=self.get_primary_display(), self._displays)
+                [x for x in self._displays if x!=self.get_primary_display()]
         return self._displays
 
     def get_resolutions_display(self, disp):

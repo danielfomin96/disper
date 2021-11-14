@@ -431,7 +431,7 @@ class Crtc:
     def supports_output(self, output):
         """Check if the output can be used by the crtc. 
            See check_crtc_for_output in xrandr.c"""
-        if not self.xid in map(lambda c: c.xid, output.get_crtcs()):
+        if not self.xid in [c.xid for c in output.get_crtcs()]:
             return False
         if len(self._outputs):
             for other in self._outputs:
@@ -713,14 +713,14 @@ class Screen:
 
     def get_output_by_name(self, name):
         """Returns the output of the screen with the given name or None"""
-        if self.outputs.has_key(name):
+        if name in self.outputs:
             return self.outputs[name]
         else:
             return None
 
     def get_output_by_id(self, id):
         """Returns the output of the screen with the given xid or None"""
-        for o in self.outputs.values():
+        for o in list(self.outputs.values()):
             if o.id == id:
                 return o
         return None
@@ -728,77 +728,77 @@ class Screen:
     def print_info(self, verbose=False):
         """Prints some information about the detected screen and its outputs"""
         xrandr._check_required_version((1,0))
-        print "Screen %s: minimum %s x %s, current %s x %s, maximum %s x %s" %\
+        print("Screen %s: minimum %s x %s, current %s x %s, maximum %s x %s" %\
               (self._screen,
                self._width_min, self._height_min,
                self._width, self._height,
-               self._width_max, self._height_max)
-        print "          %smm x %smm" % (self._width_mm, self._height_mm)
-        print "Crtcs: %s" % len(self.crtcs)
+               self._width_max, self._height_max))
+        print("          %smm x %smm" % (self._width_mm, self._height_mm))
+        print("Crtcs: %s" % len(self.crtcs))
         if verbose:
-            print "Modes (%s):" % self._resources.contents.nmode
+            print("Modes (%s):" % self._resources.contents.nmode)
             modes = self._resources.contents.modes
             for i in range(self._resources.contents.nmode):
-                print "  %s - %sx%s" % (modes[i].name,
+                print("  %s - %sx%s" % (modes[i].name,
                                        modes[i].width,
-                                       modes[i].height)
+                                       modes[i].height))
         i = 0
-        print "Sizes @ Refresh Rates:"
+        print("Sizes @ Refresh Rates:")
         for s in self.get_available_sizes():
-            print "  [%s] %s x %s @ %s" % (i, s.width, s.height,
-                                           self.get_available_rates_for_size_index(i))
+            print("  [%s] %s x %s @ %s" % (i, s.width, s.height,
+                                           self.get_available_rates_for_size_index(i)))
             i += 1
-        print "Rotations:",
+        print("Rotations:", end=' ')
         rots = self.get_available_rotations()
-        if rots & xrandr.RR_ROTATE_0: print "normal",
-        if rots & xrandr.RR_ROTATE_90: print "right",
-        if rots & xrandr.RR_ROTATE_180: print "inverted",
-        if rots & xrandr.RR_ROTATE_270: print "left",
-        print ""
-        print "Outputs:"
-        for o in self.outputs.keys():
+        if rots & xrandr.RR_ROTATE_0: print("normal", end=' ')
+        if rots & xrandr.RR_ROTATE_90: print("right", end=' ')
+        if rots & xrandr.RR_ROTATE_180: print("inverted", end=' ')
+        if rots & xrandr.RR_ROTATE_270: print("left", end=' ')
+        print("")
+        print("Outputs:")
+        for o in list(self.outputs.keys()):
             output = self.outputs[o]
-            print "  %s"  % o,
+            print("  %s"  % o, end=' ')
             if output.is_connected():
-                print "(%smm x %smm)" % (output.get_physical_width(),
-                                         output.get_physical_height())
+                print("(%smm x %smm)" % (output.get_physical_width(),
+                                         output.get_physical_height()))
                 modes = output.get_available_modes()
-                print "    Modes:"
+                print("    Modes:")
                 for m in range(len(modes)):
                     mode = modes[m]
                     refresh = mode.dotClock / (mode.hTotal * mode.vTotal)
-                    print "      [%s] %s x %s @ %s" % (m,
+                    print("      [%s] %s x %s @ %s" % (m,
                                                        mode.width,
                                                        mode.height,
-                                                       refresh),
+                                                       refresh), end=' ')
                     if mode.id == output._mode:
-                        print "*",
+                        print("*", end=' ')
                     if m == output.get_preferred_mode():
-                        print "(preferred)",
-                    print ""
-                print "    Rotations:",
+                        print("(preferred)", end=' ')
+                    print("")
+                print("    Rotations:", end=' ')
                 rots = output.get_available_rotations()
-                if rots & xrandr.RR_ROTATE_0: print "normal",
-                if rots & xrandr.RR_ROTATE_90: print "right",
-                if rots & xrandr.RR_ROTATE_180: print "inverted",
-                if rots & xrandr.RR_ROTATE_270: print "left",
-                print ""
+                if rots & xrandr.RR_ROTATE_0: print("normal", end=' ')
+                if rots & xrandr.RR_ROTATE_90: print("right", end=' ')
+                if rots & xrandr.RR_ROTATE_180: print("inverted", end=' ')
+                if rots & xrandr.RR_ROTATE_270: print("left", end=' ')
+                print("")
             else: 
-                print "(not connected)"
+                print("(not connected)")
             if verbose:
-                print "    Core properties:"
+                print("    Core properties:")
                 for (f,t) in output._info.contents._fields_:
-                    print "      %s: %s" % (f,
-                                            getattr(output._info.contents, f))
+                    print("      %s: %s" % (f,
+                                            getattr(output._info.contents, f)))
 
     def get_outputs(self):
         """Returns the outputs of the screen"""
         xrandr._check_required_version((1,2))
-        return self.outputs.values()
+        return list(self.outputs.values())
 
     def get_output_names(self):
         xrandr._check_required_version((1,2))
-        return self.outputs.keys()
+        return list(self.outputs.keys())
 
     def set_size(self, width, height, width_mm, height_mm):
         """Apply the given pixel and physical size to the screen"""
@@ -816,7 +816,7 @@ class Screen:
         self._calculate_size()
 
         # Assign all active outputs to crtcs
-        for output in self.outputs.values():
+        for output in list(self.outputs.values()):
             if not output._mode or output._crtc: continue
             for crtc in output.get_crtcs():
                 if crtc and crtc.supports_output(output):

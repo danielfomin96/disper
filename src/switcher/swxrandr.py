@@ -17,7 +17,7 @@ import logging
 
 import xrandr
 
-from resolutions import *
+from .resolutions import *
 
 class XRandrSwitcher:
 
@@ -31,8 +31,8 @@ class XRandrSwitcher:
     def get_displays(self):
         '''return an array of connected displays'''
         displays = self.screen.get_outputs()
-        displays = filter(lambda o: o.is_connected(), displays)
-        displays = map(lambda o: o.name, displays)
+        displays = [o for o in displays if o.is_connected()]
+        displays = [o.name for o in displays]
         return displays
 
 
@@ -119,7 +119,7 @@ class XRandrSwitcher:
             modes.sort(lambda x,y: x[1]-y[1])
             if len(modes) > 1:
                 self.log.info(str(d)+': available refresh rates for resolution '+
-                    str(res)+': '+', '.join(map(lambda o: '%d'%(o[1]), modes)))
+                    str(res)+': '+', '.join(['%d'%(o[1]) for o in modes]))
             if len(modes) == 0:
                 raise ValueError('Mode %dx%d is invalid for display %s'%(s[0], s[1], d))
             mode = modes[-1]
